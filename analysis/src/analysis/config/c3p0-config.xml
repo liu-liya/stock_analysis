@@ -1,0 +1,11 @@
+<? xml version ="1.0" encoding= "UTF-8" ?>
+<c3p0-config>
+       <!-- 默认配置，c3p0框架默认加载这段默认配置 -->
+       <default-config>
+             <!-- 配置JDBC 四个基本属性 -->
+             <property name ="driverClass">oracle.jdbc.driver.OracleDriver</property>
+             <property name ="jdbcUrl">jdbc:oracle:thin:@//demantra-scan:1521/PRD</property>
+             <property name ="user">apps</property>
+             <property name ="password">apps</property>
+       </default-config> <!-- This app is massive! -->
+</c3p0-config>
