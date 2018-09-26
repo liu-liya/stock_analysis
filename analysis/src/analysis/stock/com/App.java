@@ -27,7 +27,7 @@ public class App {
         Date lBeginDate = null;
         Date lEndDate = null;
         ComboPooledDataSource dbPool = new ComboPooledDataSource();
-        
+System.out.println("User:" + dbPool.getUser());
         DateFormat dateFormat = new SimpleDateFormat ("yyyyMMdd" );
         try {
             lBeginDate = dateFormat.parse( "20000120" );
@@ -35,12 +35,15 @@ public class App {
         } catch ( Exception e ) {
             e.printStackTrace();
         }
-        
+        long startTime = System.currentTimeMillis();
         // 数据导出格式分隔符�??;�? 日期格式yyyymmdd 无题头信�? 前复�?
-      StockList lStockList = new  StockList("D:\\Project\\tmp3\\", 256);
+      StockList lStockList = new  StockList("D:\\Github\\tmp3\\", 256);
     
       lStockList.initPolicy( lBeginDate, lEndDate );
       lStockList.genPolicyStockList( dbPool );
+      
+      System.out.println( " Sequence : " + ( float )( System.currentTimeMillis() - startTime ) / 1000f + "s" );
+        
       //lStockList.initStockPolicy();
       //lStockList.setCycleFlag( "WEEK");
       //同步数据至数据库
