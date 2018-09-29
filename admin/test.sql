@@ -2,8 +2,12 @@ truncate table DEMANTRA.CUX_STOCK_NODE;
 truncate table demantra.cux_stocks;
 truncate table demantra.cux_stock_tran;
 
-select * from cux_stocks order by stock_num;
-select * from CUX_STOCK_NODE csn where csn.stock_id = 11003;
+begin
+select count(1) from cux_stocks  ;
+select count(1) from CUX_STOCK_NODE csn ; 
+end;
+
+where csn.stock_id = 11003;
 select count(1) from CUX_STOCK_NODE csn where csn.stock_id = 72 and csn.day_index = 139 order by day_index;
 select * from cux_stock_tran;
 select CUX_SEQ_STOCK_ID.currval from dual

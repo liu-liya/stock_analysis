@@ -178,11 +178,11 @@
             <value n="isJDK" v="false"/>
          </hash>
          <hash>
-            <value n="id" v="Ojdbc7.jar"/>
+            <value n="id" v="Commons-dbutils-1.7.jar"/>
             <value n="isJDK" v="false"/>
          </hash>
          <hash>
-            <value n="id" v="Commons-dbutils-1.7.jar"/>
+            <value n="id" v="Ojdbc7.jar"/>
             <value n="isJDK" v="false"/>
          </hash>
       </list>
@@ -270,20 +270,20 @@
             </hash>
             <hash>
                <list n="classPath">
-                  <url path="../../thirdpartlib/ojdbc7.jar" jar-entry=""/>
-               </list>
-               <value n="deployedByDefault" v="true"/>
-               <value n="description" v="Ojdbc7.jar"/>
-               <value n="id" v="Ojdbc7.jar"/>
-               <value n="locked" v="true"/>
-            </hash>
-            <hash>
-               <list n="classPath">
                   <url path="../../thirdpartlib/commons-dbutils-1.7.jar" jar-entry=""/>
                </list>
                <value n="deployedByDefault" v="true"/>
                <value n="description" v="Commons-dbutils-1.7.jar"/>
                <value n="id" v="Commons-dbutils-1.7.jar"/>
+               <value n="locked" v="true"/>
+            </hash>
+            <hash>
+               <list n="classPath">
+                  <url path="../../thirdpartlib/ojdbc7.jar" jar-entry=""/>
+               </list>
+               <value n="deployedByDefault" v="true"/>
+               <value n="description" v="Ojdbc7.jar"/>
+               <value n="id" v="Ojdbc7.jar"/>
                <value n="locked" v="true"/>
             </hash>
          </list>
@@ -299,11 +299,11 @@
             <value n="isJDK" v="false"/>
          </hash>
          <hash>
-            <value n="id" v="Ojdbc7.jar"/>
+            <value n="id" v="Commons-dbutils-1.7.jar"/>
             <value n="isJDK" v="false"/>
          </hash>
          <hash>
-            <value n="id" v="Commons-dbutils-1.7.jar"/>
+            <value n="id" v="Ojdbc7.jar"/>
             <value n="isJDK" v="false"/>
          </hash>
       </list>
