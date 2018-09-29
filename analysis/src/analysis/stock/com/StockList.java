@@ -14,20 +14,42 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import java.util.Date;
+import java.util.Date; 
 
-public class StockList {
-    int stockCount;
-    int maxPerCount = 100;
+import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+
+public class StockList extends RecursiveAction {
+    int start, end; //并行计算起始位置
+    static final int THRESHOLD = 10;  //并行最小串行计算股票数
+    
+    int stockCount;  //股票数量
+    
+    int maxPerCount = 4000;
     String locDir;
     List<Stock> stockList;
     //String cycleFlag;
+    //交易策略计算起止日期
     Date beginDate = null;
-    Date endDate = null;
-
+    Date endDate = null; 
+    Float policyBuyK;
+    
     int policyCnt;
     List<Policy> policyList;
 
+    // add start 
+    public StockList(List<Stock> pStockList, List<Policy> pPolicyList, int start, int end, Date pBeginDate, Date pEndDate, Float pBuyK) {
+        this.stockList = pStockList;
+        this.policyList = pPolicyList;
+        this.start = start;
+        this.end = end; 
+        
+        this.beginDate = pBeginDate;
+        this.endDate = pEndDate;
+        this.policyBuyK = pBuyK;
+    }
+    
     //
     // 初始化策略清单
     //
@@ -50,8 +72,8 @@ public class StockList {
     public void addPolicy(Policy pPolicy) {
         policyList.add(pPolicy);
         policyCnt++;
-    }
-
+    } 
+    
     public void genPolicyStockList(ComboPooledDataSource pDBPool) {
         stockCount = 0;
         stockList = new LinkedList<Stock>();
@@ -60,8 +82,9 @@ public class StockList {
 
         //获得当前路径下的所有文件和文件夹
         File[] allFiles = dirFile.listFiles();
-
+System.out.println("Begin init StockList.");
         for ( i = 0; i < allFiles.length; i++) {
+            //分批处理数据 防止内存溢出
             if (i % maxPerCount != 0 || i == 0) {
                 if (allFiles[i].getName()
                                .trim()
@@ -74,7 +97,7 @@ public class StockList {
                     stockCount++;
                 }
             } else {
-//System.out.println("list size:" + stockList.size());
+System.out.println("list size:" + stockList.size());
                 //同步股票信息至数据库
                 syncStockInfoToDB(pDBPool);
                 //同步股票日线周线信息 
@@ -95,11 +118,15 @@ public class StockList {
                 stockCount++;
             }
         }
+System.out.println("End init Stock List from IO File. Begin paralle cacle tran. ");           
+        //边界值 最后一个记录正好为allFiles.length
         if ( i%maxPerCount !=0 || i == allFiles.length ) {
             //同步股票信息至数据库
             syncStockInfoToDB(pDBPool);
+System.out.println("After sync stockinfo to DB.");
             ////根据kd和macd创建交易记录
             tranWeekKDMACD( beginDate, endDate, 20.0F);
+System.out.println("After cacle policy and tran");
             //同步交易信息至数据库
             syncStockTranToDB(pDBPool);
             stockCount = 0;
@@ -109,15 +136,42 @@ public class StockList {
         }
     }
 
+    @Override
+        protected void compute() {
+            if (end - start <= THRESHOLD) {
+                // 如果任务足够小,直接计算: 
+                String stockNumber = null;
+                for (int i = start; i < end; i++) 
+                    for (int j = 0; j < policyList.size(); j++)  {
+                        stockList.get(i).tranWeekKDMACD(policyList.get(j), beginDate, endDate, policyBuyK); 
+                    }
+                return;
+            }
+            // 任务太大,一分为二:
+            int middle = (end + start) / 2;
+            StockList subtask1 = new StockList(this.stockList, this.policyList, start, middle, beginDate, endDate, policyBuyK ); 
+            StockList subtask2 = new StockList(this.stockList, this.policyList, middle, end, beginDate, endDate, policyBuyK ); 
+            invokeAll(subtask1, subtask2);
+            subtask1.join();
+            subtask2.join();
+            return ;
+        }
+
     // 计算kdmacd指标计算结果
     public void tranWeekKDMACD(Date pBeginDate, Date pEndDate, Float pBuyK) {
         System.out.println("股票代码" + "|" + "最终收益" + "|" + "平均收益" + "|" + "最低收益" + "|" + "成功率" + "|" + "成功次数" + "|" +
                            "总次数");
+        //并行计算股票 交易
+        ForkJoinPool fjp = new ForkJoinPool(); // 最大并发数4
+        StockList task = new StockList(stockList, policyList, 0, stockList.size(), pBeginDate, pEndDate, pBuyK ); 
+        fjp.invoke(task); 
+        
+        /*
         for (int i = 0; i < stockCount; i++)
             for (int j = 0; j < policyList.size(); j++) {
                 stockList.get(i).tranWeekKDMACD(policyList.get(j), pBeginDate, pEndDate, pBuyK);
             }
-
+        */
     }
     /*
     public void tranWeekMACD( int pPolicy, Date pBeginDate, Date pEndDate ) {

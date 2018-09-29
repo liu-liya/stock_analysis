@@ -26,8 +26,8 @@ public class App {
     public static void main( String[] args ) {
         Date lBeginDate = null;
         Date lEndDate = null;
-        ComboPooledDataSource dbPool = new ComboPooledDataSource();
-System.out.println("User:" + dbPool.getUser());
+        ComboPooledDataSource dbPool = new ComboPooledDataSource(); 
+        
         DateFormat dateFormat = new SimpleDateFormat ("yyyyMMdd" );
         try {
             lBeginDate = dateFormat.parse( "20000120" );
@@ -37,9 +37,10 @@ System.out.println("User:" + dbPool.getUser());
         }
         long startTime = System.currentTimeMillis();
         // 数据导出格式分隔符�??;�? 日期格式yyyymmdd 无题头信�? 前复�?
-      StockList lStockList = new  StockList("D:\\Github\\tmp3\\", 256);
+      StockList lStockList = new  StockList("D:\\Github\\tmp3\\", 200);
     
       lStockList.initPolicy( lBeginDate, lEndDate );
+ 
       lStockList.genPolicyStockList( dbPool );
       
       System.out.println( " Sequence : " + ( float )( System.currentTimeMillis() - startTime ) / 1000f + "s" );

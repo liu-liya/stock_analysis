@@ -28,7 +28,6 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.math.BigInteger;
 
 import java.sql.SQLException;
-
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import sun.misc.GC;
@@ -50,6 +49,9 @@ public class Stock {
 
     List<Policy> tranPolicy;
 
+
+    
+    
     public Stock() {
         dayCount = 0;
         weekCount = 0;
