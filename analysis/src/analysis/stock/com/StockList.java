@@ -11,6 +11,8 @@ import analysis.stock.com.Stock;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
+import java.io.IOException;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -22,7 +24,7 @@ import java.util.concurrent.ForkJoinPool;
 
 public class StockList extends RecursiveAction {
     int start, end; //并行计算起始位置
-    static final int THRESHOLD = 10;  //并行最小串行计算股票数
+    static final int THRESHOLD = 50;  //并行最小串行计算股票数
     
     int stockCount;  //股票数量
     
@@ -48,6 +50,7 @@ public class StockList extends RecursiveAction {
         this.beginDate = pBeginDate;
         this.endDate = pEndDate;
         this.policyBuyK = pBuyK;
+        System.out.println( "Create new job. start(" + start + "),  end(" + end + ")");
     }
     
     //
@@ -118,15 +121,18 @@ System.out.println("list size:" + stockList.size());
                 stockCount++;
             }
         }
-System.out.println("End init Stock List from IO File. Begin paralle cacle tran. ");           
+System.out.println(" size:" + stockList.size() + " cnt:" + stockCount );       
+System.out.println("End init Stock List from IO File. Begin syncStockInfoToDB. ");           
         //边界值 最后一个记录正好为allFiles.length
         if ( i%maxPerCount !=0 || i == allFiles.length ) {
             //同步股票信息至数据库
             syncStockInfoToDB(pDBPool);
-System.out.println("After sync stockinfo to DB.");
+ 
+System.out.println("End init Stock List from IO File. Begin paralle cacle. "); 
             ////根据kd和macd创建交易记录
             tranWeekKDMACD( beginDate, endDate, 20.0F);
 System.out.println("After cacle policy and tran");
+            
             //同步交易信息至数据库
             syncStockTranToDB(pDBPool);
             stockCount = 0;
@@ -139,21 +145,22 @@ System.out.println("After cacle policy and tran");
     @Override
         protected void compute() {
             if (end - start <= THRESHOLD) {
-                // 如果任务足够小,直接计算: 
-                String stockNumber = null;
+                // 如果任务足够小,直接计算:  
                 for (int i = start; i < end; i++) 
                     for (int j = 0; j < policyList.size(); j++)  {
                         stockList.get(i).tranWeekKDMACD(policyList.get(j), beginDate, endDate, policyBuyK); 
                     }
                 return;
             }
-            // 任务太大,一分为二:
-            int middle = (end + start) / 2;
-            StockList subtask1 = new StockList(this.stockList, this.policyList, start, middle, beginDate, endDate, policyBuyK ); 
-            StockList subtask2 = new StockList(this.stockList, this.policyList, middle, end, beginDate, endDate, policyBuyK ); 
-            invokeAll(subtask1, subtask2);
-            subtask1.join();
-            subtask2.join();
+            else {
+                // 任务太大,一分为二:
+                int middle = (end + start) / 2;
+                StockList subtask1 = new StockList(this.stockList, this.policyList, start, middle, beginDate, endDate, policyBuyK ); 
+                StockList subtask2 = new StockList(this.stockList, this.policyList, middle, end, beginDate, endDate, policyBuyK ); 
+                invokeAll(subtask1, subtask2);
+                subtask1.join();
+                subtask2.join();
+            }
             return ;
         }
 
@@ -336,6 +343,7 @@ System.out.println("After cacle policy and tran");
                 curStock.syncInfoToDB(pDBPool);
                 curStock.syncNodeToDB(pDBPool, "WEEK");
             }
+            //System.out.println(" Sync stock (" + i + "):" + curStock.getStockNumber() + " Over.");
         }
     }
 

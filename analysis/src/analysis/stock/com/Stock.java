@@ -33,6 +33,7 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
 import sun.misc.GC;
 
 public class Stock {
+    String marketName;
     Number stockId; //数据库id标识
     String stockNumber; //股票代码
     static Float startCASH = 100000.00F; //初始资金
@@ -242,7 +243,8 @@ public class Stock {
         Float weekClose;
         Float weekVolumn;
         Float weekMoney;
-
+        
+        marketName = fileName.substring( fileNameLen - 13, fileNameLen - 11);
         stockNumber = fileName.substring(fileNameLen - 10, fileNameLen - 4);
 
         File file = new File(fileName);
@@ -368,10 +370,10 @@ public class Stock {
             //执行SQL语句
             java.sql.Date lFirstDay = new java.sql.Date(firstDayTime.getTime());
             qr.update("insert into cux_stocks(stock_id,market_name, stock_num, start_date,enable_flag ) values(CUX_SEQ_STOCK_ID.nextval,?, ?, ?,?)",
-                      new Object[] { "SH", stockNumber, lFirstDay, "Y" });
+                      new Object[] { marketName, stockNumber, lFirstDay, "Y" });
             //stockId = (Number) qr.query("select CUX_SEQ_STOCK_ID.currval from dual", new ScalarHandler());
             stockId =
-                (Number) qr.query("select stock_id from cux_stocks where stock_num = '" + stockNumber + "'",
+                (Number) qr.query("select stock_id from cux_stocks where stock_num = '" + stockNumber + "' and market_name='" + marketName + "'",
                                   new ScalarHandler());
             //System.out.println("StockID:" + stockId);
 
@@ -591,8 +593,8 @@ public class Stock {
     public void printTranInfo(Policy pPolicy, String pCycle) {
         for (int i = 0; i < tranPolicy.size(); i++) {
             if (tranPolicy.get(i).getPolicyId() == pPolicy.getPolicyId())
-                System.out.println(stockNumber + "|" + tranPolicy.get(i).getTotalLoss() + "|" + 1 + "|" + 1 + "|" + 1 +
-                                   "|" + 1 + "|" + 1);
+              //  System.out.println(stockNumber + "|" + tranPolicy.get(i).getTotalLoss() + "|" + 1 + "|" + 1 + "|" + 1 +   "|" + 1 + "|" + 1);
+              i=i;
         }
 
     }
