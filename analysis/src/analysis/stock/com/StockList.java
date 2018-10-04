@@ -82,7 +82,7 @@ public class StockList extends RecursiveAction {
         stockList = new LinkedList<Stock>();
         File dirFile = new File(locDir);
         int i;
-
+long startTime = System.currentTimeMillis();
         //获得当前路径下的所有文件和文件夹
         File[] allFiles = dirFile.listFiles();
 System.out.println("Begin init StockList.");
@@ -121,20 +121,22 @@ System.out.println("list size:" + stockList.size());
                 stockCount++;
             }
         }
-System.out.println(" size:" + stockList.size() + " cnt:" + stockCount );       
-System.out.println("End init Stock List from IO File. Begin syncStockInfoToDB. ");           
+System.out.println(" size:" + stockList.size() + " cnt:" + stockCount );  
+System.out.println( "End init Stock List from IO File. Begin syncStockInfoToDB. " + ( float )( System.currentTimeMillis() - startTime ) / 1000f + "s" );
         //边界值 最后一个记录正好为allFiles.length
         if ( i%maxPerCount !=0 || i == allFiles.length ) {
             //同步股票信息至数据库
             syncStockInfoToDB(pDBPool);
  
-System.out.println("End init Stock List from IO File. Begin paralle cacle. "); 
+System.out.println("End init Stock List from IO File. Begin paralle cacle:"+ ( float )( System.currentTimeMillis() - startTime ) / 1000f + "s" );
             ////根据kd和macd创建交易记录
             tranWeekKDMACD( beginDate, endDate, 20.0F);
-System.out.println("After cacle policy and tran");
+System.out.println("After cacle policy and tran:"+ ( float )( System.currentTimeMillis() - startTime ) / 1000f + "s" );
             
             //同步交易信息至数据库
             syncStockTranToDB(pDBPool);
+System.out.println("End tran to DB:"+ ( float )( System.currentTimeMillis() - startTime ) / 1000f + "s" );
+            
             stockCount = 0;
             //清空链表
             stockList.clear();

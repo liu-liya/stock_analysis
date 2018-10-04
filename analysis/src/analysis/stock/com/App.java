@@ -26,7 +26,7 @@ public class App {
     public static void main( String[] args ) {
         Date lBeginDate = null;
         Date lEndDate = null;
-        ComboPooledDataSource dbPool = new ComboPooledDataSource(); 
+        ComboPooledDataSource dbPool = new ComboPooledDataSource("VIS"); 
         
         DateFormat dateFormat = new SimpleDateFormat ("yyyyMMdd" );
         try {
@@ -37,7 +37,7 @@ public class App {
         }
         long startTime = System.currentTimeMillis();
         // 数据导出格式分隔符�??;�? 日期格式yyyymmdd 无题头信�? 前复�?
-      StockList lStockList = new  StockList("D:\\Github\\tmp3\\", 4000);
+      StockList lStockList = new  StockList("D:\\Github\\tmp3\\", 500);
     
       lStockList.initPolicy( lBeginDate, lEndDate );
  
