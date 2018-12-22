@@ -1,0 +1,1 @@
+config下的xml配置文件 放置到$JAVA_TOP目录下
